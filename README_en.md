@@ -86,6 +86,6 @@ Checkpoint Loader (Qwen Image) → LordLoraQwenEdit → KSampler → VAE Decode 
 
 ## 许可证
 
-与 ComfyUI 相同（GPL-3.0）。使用任何 LoRA 资源时，请遵循其各自的授权条款。
+MIT开源许可。使用任何 LoRA 资源时，请遵循其各自的授权条款。
 
 > **补充说明**：本节点目前使用 ai-toolkit 训练框架生成的 Qwen Image LoRA 进行测试与验证。其他训练框架生成的 LoRA 可能存在不兼容情况，请自行测试。如遇问题，欢迎提交 issue 反馈，我们会协助排查。
