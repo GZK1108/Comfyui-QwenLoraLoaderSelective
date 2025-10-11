@@ -83,6 +83,6 @@ Using `layer_filter = transformer_blocks.0` limits the LoRA to the first transfo
 
 ## License
 
-Same license as ComfyUI (GPL-3.0). Please respect the individual licenses of LoRA assets you deploy.
+MIT License. Please respect the individual licenses of LoRA assets you deploy.
 
 > **Note**: The node has been validated with LoRAs trained via the ai-toolkit training framework. LoRAs produced by other toolchains may not be compatible—please test them on your own setup. If you encounter issues, feel free to open an issue for assistance.
