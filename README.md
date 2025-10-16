@@ -62,7 +62,7 @@ Leave the filter empty to apply the LoRA to all available transformer layers.
 
 Example：
 
-![example](images/node_image.png)
+![example](images/nodes_image.png)
 
 
 ### Example Workflow

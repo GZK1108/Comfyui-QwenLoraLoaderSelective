@@ -64,7 +64,7 @@ transformer_blocks.0, transformer_blocks.12
 
 节点示例：
 
-![节点示例](images/node_image.png)
+![节点示例](images/nodes_image.png)
 
 
 ### 示例工作流
