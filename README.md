@@ -1,6 +1,6 @@
-# LordLoraQwenEdit (Selective Qwen Edit layers from ai-toolkit)
+# LordLoraQwenImage (Selective Qwen Image layers from ai-toolkit)
 
-`LordLoraQwenEdit` is a ComfyUI custom node for Qwen Image Image Edit pipelines. It selectively applies Qwen Image edit LoRAs to specific UNet transformer layers based on keyword filters, keeping the rest of the network untouched for precise control.
+`LordLoraQwenImage` is a ComfyUI custom node for Qwen Image Edit pipelines. It selectively applies Qwen Image edit LoRAs to specific UNet transformer layers based on keyword filters, keeping the rest of the network untouched for precise control.
 
 ---
 

@@ -1,6 +1,6 @@
-# LordLoraQwenEdit 节点文档（Selective Qwen Edit layers from ai-toolkit）
+# LordLoraQwenImage 节点文档（Selective Qwen Image layers from ai-toolkit）
 
-`LordLoraQwenEdit` 是专为 Qwen Image Edit 工作流定制的 ComfyUI 节点，可根据关键字筛选仅在指定的 UNet transformer 层注入 Qwen Image 编辑类 LoRA，从而保持其余网络权重不受影响，实现更精准的编辑效果。
+`LordLoraQwenImage` 是专为 Qwen Image Edit 工作流定制的 ComfyUI 节点，可根据关键字筛选仅在指定的 UNet transformer 层注入 Qwen Image 编辑类 LoRA，从而保持其余网络权重不受影响，实现更精准的编辑效果。
 
 ---
 
