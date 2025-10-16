@@ -45,8 +45,8 @@ class SelectiveLoraLoader(io.ComfyNode):
     def define_schema(cls) -> io.Schema:
         lora_options = cls._available_loras() or ["<none>"]
         return io.Schema(
-            node_id="LordLoraQwenEdit",
-            display_name="LordLoraQwenEdit (Selective Qwen Edit layers from ai-toolkit)",
+            node_id="LoadLoraQwenImage",
+            display_name="LoadLoraQwenImage (Selective Qwen Image layers from ai-toolkit)",
             category="loaders",
             inputs=[
                 io.Model.Input("model", optional=True),
