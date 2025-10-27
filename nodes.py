@@ -27,9 +27,24 @@ def _filter_mapping(mapping: Dict[str, str], filters: list[str]) -> Dict[str, st
             filtered[logical_key] = param_name
     return filtered
 
+# 新增：应用包含/排除两类过滤
+def _apply_filters(mapping: Dict[str, str], include_filters: list[str], exclude_filters: list[str]) -> Dict[str, str]:
+    # 先应用包含过滤（为空则等同于不过滤）
+    result = _filter_mapping(mapping, include_filters)
+    if not exclude_filters:
+        return result
+    # 再应用排除过滤：命中任意 token 的层将被剔除
+    filtered: Dict[str, str] = {}
+    for logical_key, param_name in result.items():
+        if any(token in logical_key or token in param_name for token in exclude_filters):
+            continue
+        filtered[logical_key] = param_name
+    return filtered
+
+
 
 class SelectiveLoraLoader(io.ComfyNode):
-    """加载 LoRA 并按关键字筛选目标 diffusion 层。"""
+    """加载 LoRA，并按关键字筛选/屏蔽目标 diffusion 层。"""
 
     _cache: Dict[str, Dict] = {}
 
@@ -57,7 +72,14 @@ class SelectiveLoraLoader(io.ComfyNode):
                     multiline=True,
                     default="",
                     lazy=True,
-                    tooltip="多关键字用逗号或换行分隔，匹配目标权重路径（如 transformer_blocks.0）。留空表示应用全部层。",
+                    tooltip="包含过滤：多关键字用逗号或换行分隔，匹配目标权重路径（如 transformer_blocks.0）。留空表示不限制。",
+                ),
+                io.String.Input(
+                    "exclude_filter",
+                    multiline=True,
+                    default="",
+                    lazy=True,
+                    tooltip="屏蔽过滤：多关键字用逗号或换行分隔，匹配到的层将被排除（如 attn, transformer_blocks.1）。",
                 ),
             ],
             outputs=[io.Model.Output()],
@@ -70,6 +92,7 @@ class SelectiveLoraLoader(io.ComfyNode):
         lora_name: str,
         strength_model: float,
         layer_filter: str,
+        exclude_filter: str,  # 新增参数
     ) -> io.NodeOutput:
         if not lora_name or lora_name == "<none>":
             return io.NodeOutput(model)
@@ -77,7 +100,8 @@ class SelectiveLoraLoader(io.ComfyNode):
         if strength_model == 0.0:
             return io.NodeOutput(model)
 
-        filters = _split_filters(layer_filter)
+        include_filters = _split_filters(layer_filter)
+        exclude_filters = _split_filters(exclude_filter)
 
         lora_path = folder_paths.get_full_path_or_raise("loras", lora_name)
         if lora_path in cls._cache:
@@ -90,13 +114,17 @@ class SelectiveLoraLoader(io.ComfyNode):
 
         if model is not None:
             base_model = getattr(model, "model", model)
-            model_map = _filter_mapping(comfy.lora.model_lora_keys_unet(base_model), filters)
+            full_map = comfy.lora.model_lora_keys_unet(base_model)
+            model_map = _apply_filters(full_map, include_filters, exclude_filters)
             if model_map:
                 patches = comfy.lora.load_lora(lora_state, model_map, log_missing=False)
                 target_model = model.clone() if hasattr(model, "clone") else model
                 target_model.add_patches(patches, strength_model)
                 model = target_model
             else:
-                logging.info("No diffusion model weights matched filter for LoRA %s", lora_name)
+                logging.info(
+                    "No diffusion model weights matched filters for LoRA %s (include=%s, exclude=%s)",
+                    lora_name, include_filters, exclude_filters
+                )
 
         return io.NodeOutput(model)

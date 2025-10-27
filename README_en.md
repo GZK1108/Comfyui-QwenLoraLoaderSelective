@@ -1,12 +1,13 @@
-# LordLoraQwenImage 节点文档（Selective Qwen Image layers from ai-toolkit）
+# LoadLoraQwenImage 节点文档（Selective Qwen Image layers from ai-toolkit）
 
-`LordLoraQwenImage` 是专为 Qwen Image Edit 工作流定制的 ComfyUI 节点，可根据关键字筛选仅在指定的 UNet transformer 层注入 Qwen Image 编辑类 LoRA，从而保持其余网络权重不受影响，实现更精准的编辑效果。
+`LoadLoraQwenImage` 是专为 Qwen Image Edit 工作流定制的 ComfyUI 节点，可根据关键字筛选仅在指定的 UNet transformer 层注入 Qwen Image 编辑类 LoRA，从而保持其余网络权重不受影响，实现更精准的编辑效果。
 
 ---
 
 ## 功能概览
 
 - 🎯 **层级精细控制**：通过 `layer_filter` 关键字列表匹配目标层（例如 `transformer_blocks.0`），可以自由控制Lora应用的层级。
+- 🔒 **屏蔽特定层**：通过 `exclude_filter` 显式屏蔽不希望被注入的层。该过滤在 `layer_filter` 之后应用；当两者同时存在时，以屏蔽为准。
 - 🧩 **Qwen Image Edit 适配**：针对 ai-toolkit 发布的 Qwen Image 编辑 LoRA 进行了优化，可直接融入官方或社区工作流。
 
 ---
@@ -19,6 +20,7 @@
 | `lora_name` | Combo | 选择要加载的 LoRA 文件，来源于 `ComfyUI/models/loras` 目录。 |
 | `strength_model` | FLOAT | 控制 LoRA 对模型的影响强度，默认 1.0，支持负值。 |
 | `layer_filter` | STRING（多行） | 可选。以逗号或换行分隔关键字，用于匹配目标权重路径；留空则对全部匹配层生效。 |
+| `exclude_filter` | STRING（多行） | 可选。以逗号或换行分隔关键字，用于屏蔽匹配到的层（例如 `attn`、`transformer_blocks.1`）。在 `layer_filter` 之后执行；与包含过滤同时存在时，屏蔽优先。 |
 
 输出：
 
@@ -45,10 +47,18 @@ transformer_blocks.0, transformer_blocks.12
 - **兼容**：遵循 Stable Diffusion / SDXL 命名规则的 LoRA，只要层命名与关键字匹配即可。
 ---
 
+### 包含与屏蔽规则
+
+- `layer_filter` 用于“选入”候选层（留空等同选入全部）。
+- `exclude_filter` 用于“剔除”候选层（命中任意关键字则被排除）。
+- 两者同时使用时，以屏蔽为准。
+
+---
+
 ## 使用步骤
 
 1. 将 `Comfyui-QwenLoraLoaderSelective` 文件夹复制到 `ComfyUI/custom_nodes`。
-2. 启动 ComfyUI。节点位于 **loaders** 分类，名称为 **LordLoraQwenEdit (Selective Qwen Edit layers from ai-toolkit)**。
+2. 启动 ComfyUI。节点位于 **loaders** 分类，名称为 **LoadLoraQwenImage (Selective Qwen Image layers from ai-toolkit)**。
 3. 在工作流中配置：
    1. 连接上游 `MODEL` 输出（例如 `Checkpoint Loader (Qwen Image)`）。
    2. 在 `lora_name` 中选择需要使用的 LoRA 文件。
@@ -57,6 +67,13 @@ transformer_blocks.0, transformer_blocks.12
       ```text
       transformer_blocks.0
       cross_attention
+      ```
+
+   3b. 如需屏蔽特定层，请在 `exclude_filter` 中填写关键字，例如：
+
+      ```text
+      attn,
+      transformer_blocks.1
       ```
 
    4. 调整 `strength_model` 以控制作用强度。
@@ -70,7 +87,7 @@ transformer_blocks.0, transformer_blocks.12
 ### 示例工作流
 
 ```text
-Checkpoint Loader (Qwen Image) → LordLoraQwenEdit → KSampler → VAE Decode → Save Image
+Checkpoint Loader (Qwen Image) → LoadLoraQwenImage → KSampler → VAE Decode → Save Image
 ```
 
 若 `layer_filter = transformer_blocks.0`，则 LoRA 仅作用于第一个 transformer block，适合对局部风格或特定指令进行微调。
@@ -80,6 +97,7 @@ Checkpoint Loader (Qwen Image) → LordLoraQwenEdit → KSampler → VAE Decode 
 ## 故障排查
 
 - **LoRA 未生效**：检查 `layer_filter` 是否匹配正确的权重命名；留空测试是否可全量应用。
+- **同时使用包含/屏蔽后无变化**：确认 `exclude_filter` 没有把所有候选层都排空。可先清空 `exclude_filter` 做对比测试。
 - **加载报错**：确认 LoRA 文件位于 `models/loras`，且与 Qwen Image 模型兼容；若日志提示某些键缺失，请调整关键字。
 
 ---
