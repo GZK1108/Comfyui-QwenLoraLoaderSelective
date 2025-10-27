@@ -28,7 +28,7 @@ Documentation = "https://github.com/GZK1108/Comfyui-QwenLoraLoaderSelective/wiki
 "Bug Tracker" = "https://github.com/GZK1108/Comfyui-QwenLoraLoaderSelective/issues"
 
 [tool.comfy]
-PublisherId = ""
+PublisherId = "stanleywell"
 DisplayName = "Comfyui-QwenLoraLoaderSelective"
 Icon = ""
 includes = [] 
